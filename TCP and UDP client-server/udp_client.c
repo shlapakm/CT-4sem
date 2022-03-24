@@ -16,8 +16,15 @@ int main(int argc, char *letter[]) {
     Inet_pton(AF_INET, "127.0.0.1", &adr.sin_addr);
     //Connect(fd, (struct sockaddr *) &adr, sizeof adr);
     //write(fd, letter[1], strlen(letter[1]));
-    char buf[256];
-    ssize_t nread;
+    //char buf[256];
+    //ssize_t nread;
+    //if you want to add broadcast, you can uncomment this string:
+    //int broadcast=1;
+    /*if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast) == -1) { 
+        perror("setsockopt (SO_BROADCAST)"); 
+        exit(1); 
+    }
+    */
     int numbytes = sendto(fd, letter[1], strlen(letter[1]), 0, (struct sockaddr *) &adr, sizeof adr);
     printf("client: send '%s'\n",letter[1]);
     //write(STDOUT_FILENO, buf, nread);
