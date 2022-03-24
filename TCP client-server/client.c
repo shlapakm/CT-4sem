@@ -3,37 +3,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include "erproc.h"
-
-int main(){
-    int server = socket(AF_INET, SOCK_STREAM,0);
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <string.h>
+int main(int argc, char *letter[]) {
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in adr = {0};
     adr.sin_family = AF_INET;
-    adr.sin_port =  htons(34543);
-    Bind(server, (struct sockaddr *) &adr, sizeof adr);
-    Listen(server, 5);
-    printf("server: waiting for connections...\n");
-    socklen_t adrlen = sizeof adr;
-    int fd = Accept(server, (struct sockaddr *) &adr,&adrlen);
-    ssize_t nread;
+    adr.sin_port = htons(34543);
+    Inet_pton(AF_INET, "127.0.0.1", &adr.sin_addr);
+    Connect(fd, (struct sockaddr *) &adr, sizeof adr);
+    write(fd, letter[1], strlen(letter[1]));
     char buf[256];
+    ssize_t nread;
     nread = read(fd, buf, 256);
-    if (nread == -1){
+    if (nread==-1){
         perror("read failed");
         exit(EXIT_FAILURE);
     }
-    if (nread ==0){
-        printf("END OF FILE occured\n");
+    if (nread==0){
+        printf("EOF occured\n");
     }
-    printf("server: received '%s'\n",buf);
-    //write(STDOUT_FILENO, "thanks", 7);
-    write(fd, "thanks", 7);
-    //sleep(15);
-    //close(fd);
-    //close(server);
+    printf("client: received '%s'\n",buf);
+    //write(STDOUT_FILENO, buf, nread);
+    sleep(10);
+    close(fd);
     return 0;
 }
-
