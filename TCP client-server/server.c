@@ -15,6 +15,7 @@ int main(){
     adr.sin_port =  htons(34543);
     Bind(server, (struct sockaddr *) &adr, sizeof adr);
     Listen(server, 5);
+    printf("server: waiting for connections...\n");
     socklen_t adrlen = sizeof adr;
     int fd = Accept(server, (struct sockaddr *) &adr,&adrlen);
     ssize_t nread;
@@ -27,8 +28,9 @@ int main(){
     if (nread ==0){
         printf("END OF FILE occured\n");
     }
-    write(STDOUT_FILENO, buf, nread);
-    write(fd, buf, nread);
+    printf("server: received '%s'\n",buf);
+    //write(STDOUT_FILENO, "thanks", 7);
+    write(fd, "thanks", 7);
     //sleep(15);
     //close(fd);
     //close(server);
