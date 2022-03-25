@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
 int main(){
     int fds;
     int server = socket(AF_INET, SOCK_DGRAM,0);
@@ -23,7 +24,7 @@ int main(){
     char str[255];
     FILE *fd3;
     FILE *fd2;
-    
+    FILE *fd4;
     int fd1;
     char cc[512];
     fd1= open("out.txt", O_CREAT|O_WRONLY);
@@ -45,7 +46,7 @@ int main(){
     while((fgets(cc, 256, fd3))!=NULL){
         int numbytes = sendto(server, cc, strlen(cc), 0, (struct sockaddr *) &adr, sizeof adr);
     }
-    fd4= fopen("out.txt", "r");
+    fd4= fopen("out.txt", "w");
     fclose(fd4);
     sleep(150);
     close(server);
