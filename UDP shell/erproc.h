@@ -1,6 +1,4 @@
 #include <sys/types.h>
-#ifndef ERPROC_H
-#define ERPROC_H
 #include <sys/socket.h>
 int Socket(int domain, int type, int protocol);
 void Bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
