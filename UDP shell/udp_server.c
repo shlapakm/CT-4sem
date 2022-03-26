@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 int main(){
-    int fds;
     int server = Socket(AF_INET, SOCK_DGRAM,0);
     struct sockaddr_in adr = {0};
     adr.sin_family = AF_INET;
@@ -27,7 +26,7 @@ int main(){
     int fd1;
     char str[255];
     fd1= open("out.txt", O_CREAT|O_WRONLY);
-    int client = recvfrom(server, command,255,0, (struct sockaddr *) &adr,&adrlen);
+    recvfrom(server, command,255,0, (struct sockaddr *) &adr,&adrlen);
     dup2(fd1,1);
     dup2(fd1,2);
     system(command);
@@ -38,12 +37,12 @@ int main(){
     }
     char num[1024];
     sprintf(num,"%d",n);
-    int numberoflines = sendto(server, num, strlen(num), 0, (struct sockaddr *) &adr, sizeof adr);
+    sendto(server, num, strlen(num), 0, (struct sockaddr *) &adr, sizeof adr);
     close(fd1);
     fclose(fd2);
     fd3 = fopen("out.txt", "r");
     while((fgets(str, 256, fd3))!=NULL){
-        int sendstr = sendto(server, str, strlen(str), 0, (struct sockaddr *) &adr, sizeof adr);
+        sendto(server, str, strlen(str), 0, (struct sockaddr *) &adr, sizeof adr);
         memset(&str, 0, sizeof(str));
     }
     fd4= fopen("out.txt", "w"); //clean our output file
