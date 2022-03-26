@@ -10,9 +10,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
-#define _XOPEN_SOURCE 600
 #include <fcntl.h>
-#define __USE_BSD
 #include <termios.h>
 //Attention! You can send only one command!
 int main() {
