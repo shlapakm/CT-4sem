@@ -27,18 +27,17 @@ int main() {
         exit(1); 
     }
     char str[255];
-    char *pstr;
     socklen_t adrlen = sizeof adr;
-    pstr = fgets(str, 255, stdin);
-    int command = sendto(client, str, strlen(str), 0, (struct sockaddr *) &adr, sizeof adr);
+    fgets(str, 255, stdin);
+    sendto(client, str, strlen(str), 0, (struct sockaddr *) &adr, sizeof adr);
     char num[1024];
-    int server1 = recvfrom(client, num, 1024, 0, (struct sockaddr *) &adr,&adrlen);
+    recvfrom(client, num, 1024, 0, (struct sockaddr *) &adr,&adrlen);
     int n = atoi(num); //convert string to integer
     int i = 0;
     // printf("numbers of string: %d\n", n); - if you want to check, how many line in file
     memset(&str, 0, sizeof(str));
     while (i < n){ //receive lines
-        int server = recvfrom(client, str,255,0, (struct sockaddr *) &adr,&adrlen);
+        recvfrom(client, str,255,0, (struct sockaddr *) &adr,&adrlen);
         printf("%s",str);
         i+=1;
         memset(&str, 0, sizeof(str));
