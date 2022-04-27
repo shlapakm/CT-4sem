@@ -10,8 +10,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <security/pam_appl.h>
-#include <security/pam_misc.h>
+//#include <security/pam_appl.h>
+//#include <security/pam_misc.h>
+
 int max(int x, int y)
 {
     if (x > y)
@@ -20,7 +21,64 @@ int max(int x, int y)
         return y;
 }
 
+#define BD_NO_CHDIR 01
+#define BD_NO_CLOSE_FILES 02
+#define BD_NO_REOPEN_STD_DFS 04
+#define BD_NO_UMASK0 010
+#define BD_MAX_CLOSE 8192
+int becomeDaemon(int flags);
+
+int becomeDaemon(int flags){
+    int maxfd, fd;
+    switch (fork()){
+        case -1: return -1;
+        case 0: break;
+        default: _exit(EXIT_SUCCESS);
+    }
+    if (setsid()==-1)
+        return -1;
+    switch (fork()) {
+        case -1: return -1;
+        case 0: break;
+        default: _exit(EXIT_SUCCESS);
+    }
+    if (!(flags & BD_NO_UMASK0))
+        umask(0);
+    if (!(flags & BD_NO_CHDIR))
+        chdir("/");
+    if (!(flags & BD_NO_CLOSE_FILES)){
+        maxfd = sysconf(_SC_OPEN_MAX);
+        if (maxfd == -1)
+            maxfd = BD_MAX_CLOSE;
+        for (fd = 0; fd < maxfd; fd++)
+            close(fd);
+    }
+
+    if(!(flags & BD_NO_REOPEN_STD_DFS))
+    {
+        close(STDIN_FILENO);
+    
+        fd = open("/dev/null", O_RDWR);
+
+        if (fd != STDIN_FILENO)
+            return -1;
+        if (dup2(STDIN_FILENO, STDOUT_FILENO) != STDOUT_FILENO)
+            return -1;
+        if (dup2(STDIN_FILENO, STDERR_FILENO) != STDERR_FILENO)
+            return -1;
+    }
+
+
+    return 0;
+
+
+}
+
+
+
 int main(){
+    if (becomeDaemon(0)==1)
+        exit(EXIT_FAILURE);
     fd_set rset;
     pid_t childpid;
     int server1 = Socket(AF_INET, SOCK_STREAM,0);
@@ -68,7 +126,11 @@ int main(){
                 int fd1;
                 char str[255];
                 fd1= open("out.txt", O_CREAT|O_WRONLY);
-                Recv(fd, command,255,0);
+                int length = Recv(fd, command,255,0);
+                command[length] = '\0';
+                printf("length =  %d\n", length);
+                
+                printf("cmd = [%s]\n", command);
                 int oldstdout = dup(1);
                 int oldstderr = dup(2);
                 dup2(fd1,1);
@@ -98,6 +160,7 @@ int main(){
             }
             close(fd);
         }
+
         if (FD_ISSET(server2, &rset)){
             char s[INET6_ADDRSTRLEN];
             char command[255];
@@ -106,14 +169,17 @@ int main(){
             FILE *fd4;
             int fd1;
             char str[255];
-            fd1= open("out.txt", O_CREAT|O_WRONLY);
+            if ( (fd1= open("out.txt", O_CREAT|O_WRONLY, 0666)) == -1 )
+                printf("MOLODETS\n");
+
             Recvfrom(server2, command,255,0,(struct sockaddr *) &client_adr, &client_adrlen);
             inet_ntop(AF_INET, &client_adr.sin_addr, s, sizeof s);
             printf("server: got UDP connection from %s\n", s);
+            printf("cmd = %s\n", command);
             int oldstdout = dup(1);
             int oldstderr = dup(2);
-            dup2(fd1,1);
-            dup2(fd1,2);
+            dup2(fd1,STDOUT_FILENO);
+            dup2(fd1,STDERR_FILENO);
             system(command);
             int n=0; //number of lines in the file
             fd2= fopen("out.txt", "r");
