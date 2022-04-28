@@ -38,15 +38,23 @@ int main(int argc, char *argv[]){
         char str[255];
        // socklen_t adrlen = sizeof adr;
         fgets(str, 255, stdin);
+        
+        //printf("STRLEN = %d", strlen(str));
+        str[strlen(str)] = '\0';
+
         Send(client, str, strlen(str),0);
         char num[1024];
         Recv(client, num, 1024, 0);
+        
+        
         int n = atoi(num); //convert string to integer
         int i = 0;
         // printf("numbers of string: %d\n", n); - if you want to check, how many line in file
         memset(&str, 0, sizeof(str));
         while (i < n){ //receive lines
-            Recv(client, str,255,0);
+            int length = Recv(client, str,255,0);
+            str[length] = '\0';
+            //printf("legnth =  %d\n", length);
             printf("%s",str);
             i+=1;
             memset(&str, 0, sizeof(str));
@@ -93,10 +101,10 @@ int main(int argc, char *argv[]){
             perror("setsockopt (SO_BROADCAST)"); 
             exit(1); 
         }
-        char str[255];
+        char str[] = "broadcast";
         socklen_t adrlen = sizeof adr;
         socklen_t server_adrlen = sizeof server_adr;
-        fgets(str, 255, stdin);
+        //fgets(str, 255, stdin);
         Sendto(client, str, strlen(str), 0, (struct sockaddr *) &adr, sizeof adr);
         char num[1024];
         Recvfrom(client, num, 1024, 0, (struct sockaddr *) &server_adr,&server_adrlen);
