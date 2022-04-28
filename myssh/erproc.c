@@ -1,3 +1,4 @@
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -6,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+
 int Socket(int domain, int type, int protocol){
     int res = socket(domain, type, protocol);
     if (res == -1){
@@ -62,6 +64,7 @@ ssize_t Send(int sockfd, const void *buf, size_t len, int flags){
         printf("send failed");
         exit(EXIT_FAILURE);
     }
+    return res;
 }
 ssize_t Sendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen){
     ssize_t res = sendto(sockfd,buf,len,flags,dest_addr,addrlen);
@@ -69,6 +72,7 @@ ssize_t Sendto(int sockfd, const void *buf, size_t len, int flags, const struct 
         printf("sendto failed");
         exit(EXIT_FAILURE);
     }
+    return res;
 }
 ssize_t Recv(int sockfd, void *buf, size_t len, int flags){
     ssize_t res = recv(sockfd,buf,len,flags);
@@ -76,6 +80,7 @@ ssize_t Recv(int sockfd, void *buf, size_t len, int flags){
         printf("recv failed");
         exit(EXIT_FAILURE);
     }
+    return res;
 }
 ssize_t Recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen){
     ssize_t res = recvfrom(sockfd,buf,len,flags, src_addr, addrlen);
@@ -83,4 +88,5 @@ ssize_t Recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *
         printf("recvfrom failed");
         exit(EXIT_FAILURE);
     }
+    return res;
 }
