@@ -77,8 +77,8 @@ int becomeDaemon(int flags){
 
 
 int main(){
-    if (becomeDaemon(0)==1)
-        exit(EXIT_FAILURE);
+    //if (becomeDaemon(0)==1)
+        //exit(EXIT_FAILURE);
     fd_set rset;
     pid_t childpid;
     int server1 = Socket(AF_INET, SOCK_STREAM,0);
@@ -125,19 +125,19 @@ int main(){
                 FILE *fd4;
                 int fd1;
                 char str[255];
-                fd1= open("out.txt", O_CREAT|O_WRONLY);
+                if ( (fd1= open("out1.txt", O_CREAT|O_WRONLY, 0666)) == -1 )
+                printf("MOLODETS\n");
                 int length = Recv(fd, command,255,0);
                 command[length] = '\0';
-                printf("length =  %d\n", length);
-                
-                printf("cmd = [%s]\n", command);
+                //printf("length =  %d\n", length);
+                //printf("cmd = [%s]\n", command);
                 int oldstdout = dup(1);
                 int oldstderr = dup(2);
                 dup2(fd1,1);
                 dup2(fd1,2);
                 system(command);
                 int n=0; //number of lines in the file
-                fd2= fopen("out.txt", "r");
+                fd2= fopen("out1.txt", "r");
                 while((fgets(str, 255, fd2))!=NULL){
                     n+=1;
                 }
@@ -146,12 +146,12 @@ int main(){
                 Send(fd, num, strlen(num), 0);
                 close(fd1);
                 fclose(fd2);
-                fd3 = fopen("out.txt", "r");
+                fd3 = fopen("out1.txt", "r");
                 while((fgets(str, 256, fd3))!=NULL){
                     Send(fd, str, strlen(str), 0);
                     memset(&str, 0, sizeof(str));
                 }
-                fd4= fopen("out.txt", "w"); //clean our output file
+                fd4= fopen("out1.txt", "w"); //clean our output file
                 fclose(fd4);
                 close(fd);
                 dup2(oldstdout,1);
@@ -169,20 +169,20 @@ int main(){
             FILE *fd4;
             int fd1;
             char str[255];
-            if ( (fd1= open("out.txt", O_CREAT|O_WRONLY, 0666)) == -1 )
+            if ( (fd1= open("out2.txt", O_CREAT|O_WRONLY, 0666)) == -1 )
                 printf("MOLODETS\n");
-
             Recvfrom(server2, command,255,0,(struct sockaddr *) &client_adr, &client_adrlen);
             inet_ntop(AF_INET, &client_adr.sin_addr, s, sizeof s);
             printf("server: got UDP connection from %s\n", s);
-            printf("cmd = %s\n", command);
+            //printf("cmd = %s\n", command);
+            if (strcmp(command, "broadcast")){
             int oldstdout = dup(1);
             int oldstderr = dup(2);
             dup2(fd1,STDOUT_FILENO);
             dup2(fd1,STDERR_FILENO);
             system(command);
             int n=0; //number of lines in the file
-            fd2= fopen("out.txt", "r");
+            fd2= fopen("out2.txt", "r");
             while((fgets(str, 255, fd2))!=NULL){
                 n+=1;
             }
@@ -191,15 +191,19 @@ int main(){
             Sendto(server2, num, strlen(num), 0,(struct sockaddr *) &client_adr, sizeof client_adr);
             close(fd1);
             fclose(fd2);
-            fd3 = fopen("out.txt", "r");
+            fd3 = fopen("out2.txt", "r");
             while((fgets(str, 256, fd3))!=NULL){
                 Sendto(server2, str, strlen(str), 0, (struct sockaddr *) &client_adr, sizeof client_adr);
                 memset(&str, 0, sizeof(str));
             }
-            fd4= fopen("out.txt", "w"); //clean our output file
+            fd4= fopen("out2.txt", "w"); //clean our output file
             fclose(fd4);
             dup2(oldstdout,1);
             dup2(oldstderr,2);
+            }
+            else {
+                Sendto(server2, "hi", strlen("hi"), 0,(struct sockaddr *) &client_adr, sizeof client_adr);
+            }
         }
 }
 }
